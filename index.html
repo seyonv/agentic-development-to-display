@@ -649,6 +649,178 @@
         color: var(--faint);
       }
 
+      /* ---------- what & why ---------- */
+      .whatwhy {
+        display: grid;
+        grid-template-columns: 1fr 1.25fr;
+        gap: 16px;
+      }
+      @media (max-width: 820px) {
+        .whatwhy {
+          grid-template-columns: 1fr;
+        }
+      }
+      .ww-card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 24px 26px;
+      }
+      .ww-card.why-card {
+        border-color: var(--line2);
+        box-shadow: 0 24px 60px -46px var(--glow);
+      }
+      .ww-k {
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--faint);
+        margin-bottom: 14px;
+      }
+      .why-card .ww-k {
+        color: var(--accent);
+      }
+      .ww-card > p {
+        font-size: 14px;
+        line-height: 1.7;
+        color: #cdcbc2;
+      }
+      .ww-card p b {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .whylist {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .whylist li {
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--muted);
+        padding-left: 16px;
+        border-left: 2px solid var(--accent);
+      }
+      .whylist li b {
+        color: var(--accent);
+      }
+
+      /* per-step why */
+      .why {
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.55;
+        margin-top: 9px;
+        padding-left: 13px;
+        border-left: 2px solid rgba(201, 242, 78, 0.4);
+      }
+      .why b {
+        color: var(--accent);
+        letter-spacing: 0.06em;
+      }
+
+      /* ---------- S3 deep dive ---------- */
+      .deepdive {
+        margin-top: 26px;
+        background: linear-gradient(180deg, var(--panel), var(--bg2));
+        border: 1px solid var(--line2);
+        border-radius: var(--radius);
+        padding: 28px 30px;
+      }
+      .dd-h {
+        font-family: "Fraunces", serif;
+        font-size: 22px;
+        letter-spacing: -0.01em;
+        margin-bottom: 14px;
+      }
+      .dd-h span {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--faint);
+        letter-spacing: 0;
+      }
+      .dd-why {
+        font-size: 13.5px;
+        color: #cdcbc2;
+        line-height: 1.65;
+        padding: 14px 16px;
+        background: rgba(201, 242, 78, 0.05);
+        border: 1px solid rgba(201, 242, 78, 0.18);
+        border-radius: 10px;
+        margin-bottom: 22px;
+      }
+      .dd-why b {
+        color: var(--accent);
+      }
+      .dd-col {
+        margin-bottom: 22px;
+      }
+      .dd-t {
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+      .dd-col ol {
+        margin: 0;
+        padding-left: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 11px;
+      }
+      .dd-col li {
+        font-size: 13px;
+        line-height: 1.55;
+        color: #cdcbc2;
+      }
+      .dd-col li code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: var(--accent);
+        background: var(--bg2);
+        border: 1px solid var(--line);
+        padding: 1px 6px;
+        border-radius: 4px;
+      }
+      .dd-note {
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.55;
+        margin-top: 7px;
+        padding-left: 12px;
+        border-left: 2px solid var(--line2);
+      }
+      .dd-note b {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .cdrop {
+        color: var(--drop);
+        font-weight: 700;
+      }
+      .ckeep {
+        color: var(--keep);
+        font-weight: 700;
+      }
+      .cflag {
+        color: var(--flag);
+        font-weight: 700;
+      }
+      .dd-trap {
+        font-size: 13px;
+        color: #cdcbc2;
+        line-height: 1.65;
+        padding: 16px 18px;
+        background: rgba(255, 93, 93, 0.05);
+        border: 1px solid rgba(255, 93, 93, 0.2);
+        border-radius: 10px;
+      }
+      .dd-trap b {
+        color: var(--drop);
+      }
+
       /* ---------- ladder ---------- */
       .ladder {
         display: flex;
@@ -3013,6 +3185,49 @@ state = init(goal)
         </section>
       </div>
 
+      <!-- WHAT & WHY -->
+      <div class="wrap">
+        <section class="block" style="border-top: none; padding-top: 0">
+          <div class="whatwhy">
+            <div class="ww-card">
+              <div class="ww-k">What you're building</div>
+              <p>
+                <b>VERIFIED-LOOP</b> — a research agent that produces
+                <b>cited reports and refuses to hallucinate</b>. It decomposes a
+                question, researches sub-questions in parallel, then
+                <b>verifies every claim against the real source text</b> and
+                <b>iterates across generations</b> until the report is faithful.
+                The output is a report where every sentence traces to a quote
+                the source actually contains.
+              </p>
+            </div>
+            <div class="ww-card why-card">
+              <div class="ww-k">Why this one — the part that matters</div>
+              <ul class="whylist">
+                <li>
+                  <b>It proves "agentic &gt; prompting" with a number.</b>
+                  Anyone can call an LLM. The rare signal is designing a system
+                  that <i>measurably</i> beats the naive call — and proving it
+                  with an ablation. That number is your entire pitch.
+                </li>
+                <li>
+                  <b>The win is structural, not luck.</b> Checking a claim
+                  against a source is cheaper and more reliable than generating
+                  a perfect one in a single shot. A lone call
+                  <i>cannot</i> self-check by construction. You're exploiting
+                  that asymmetry on purpose.
+                </li>
+                <li>
+                  <b>It teaches the whole canon at once.</b> Planning · parallel
+                  tool use · an evaluator / verification gate · a generations
+                  loop. Five reusable patterns in one finishable project.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+
       <!-- 0 · inference -->
       <div class="wrap">
         <section class="block">
@@ -3171,6 +3386,11 @@ echo 'TAVILY_API_KEY=tvly-...'      &gt;&gt; .env</pre>
                   paragraph. Force Claude to return a typed Pydantic object via
                   tool-use (don't parse strings).
                 </div>
+                <div class="why">
+                  <b>Why</b> — prove the core mechanics end-to-end (a real model
+                  call + a real tool + typed output) before any complexity. If
+                  this works, everything after is just composition.
+                </div>
                 <span class="mpat"
                   >done when: a real cited paragraph prints from a live
                   source</span
@@ -3187,6 +3407,12 @@ echo 'TAVILY_API_KEY=tvly-...'      &gt;&gt; .env</pre>
                   Run all workers concurrently with <code>asyncio.gather</code>.
                   Add retries-with-backoff, a per-run token budget, and record
                   each call as a span to <code>trace.json</code>.
+                </div>
+                <div class="why">
+                  <b>Why</b> — this is what "orchestration" actually means: real
+                  systems run work in parallel and survive partial failure. The
+                  trace is so you can <i>see</i> what the agent did —
+                  observability is half the impressiveness.
                 </div>
                 <span class="mpat"
                   >done when: 4 workers run in parallel · one can fail without
@@ -3206,6 +3432,13 @@ echo 'TAVILY_API_KEY=tvly-...'      &gt;&gt; .env</pre>
                   synthesize → score faithfulness (% kept) → research more →
                   repeat up to N.
                 </div>
+                <div class="why">
+                  <b>Why</b> — this is the line between "I wired up an API" and
+                  "I designed an agentic system." Everything before S3, a single
+                  Claude call with search roughly does too. S3 is where you stop
+                  trusting the model and start checking it. See the deep dive
+                  below.
+                </div>
                 <span class="mpat"
                   >done when: a fabricated claim gets dropped · the score rises
                   across generations</span
@@ -3222,6 +3455,12 @@ echo 'TAVILY_API_KEY=tvly-...'      &gt;&gt; .env</pre>
                   Make B0/B1/A1/A2 <b>feature flags on one engine</b>. Loop your
                   eval set through all four; print the unsupported-claim rate
                   each. Validate the verifier against your 30-row gold set.
+                </div>
+                <div class="why">
+                  <b>Why</b> — without a number, "it's better" is a vibe. The
+                  ablation turns your claim into <i>evidence</i>, and isolates
+                  the orchestration as the cause. This is the differentiator
+                  almost nobody ships — it's what makes a reviewer believe you.
                 </div>
                 <span class="mpat"
                   >done when: you have the 4-row scorecard showing B1 → A2
@@ -3241,6 +3480,11 @@ echo 'TAVILY_API_KEY=tvly-...'      &gt;&gt; .env</pre>
                   <code>run.html</code>. Run once with real keys → it
                   regenerates the hosted /demo from a genuine run.
                 </div>
+                <div class="why">
+                  <b>Why</b> — the demo is what gets shared and what has to land
+                  in 5 seconds. Generating it from a <i>real</i> run keeps it
+                  honest: it's polished presentation of true data, not a mockup.
+                </div>
                 <span class="mpat">done when: /demo plays your real run</span>
               </div>
             </div>
@@ -3255,6 +3499,11 @@ echo 'TAVILY_API_KEY=tvly-...'      &gt;&gt; .env</pre>
                   Push; Pages redeploys. README leads with the live demo + the
                   ablation numbers.
                 </div>
+                <div class="why">
+                  <b>Why</b> — a project nobody sees isn't a portfolio piece.
+                  The GIF + the one number do the talking before anyone reads a
+                  line of code.
+                </div>
                 <span class="mpill"
                   >QuickTime to record · or `brew install vhs` for scripted
                   terminal GIFs</span
@@ -3262,6 +3511,93 @@ echo 'TAVILY_API_KEY=tvly-...'      &gt;&gt; .env</pre>
               </div>
             </div>
           </div>
+
+          <div class="deepdive">
+            <div class="dd-h">
+              Deep dive · S3 — the verifier + generations loop
+              <span>(where everyone gets stuck)</span>
+            </div>
+            <p class="dd-why">
+              <b>Why S3 is the whole project:</b> steps 1–2 (plan, search,
+              summarize) are roughly what one Claude call with web search
+              already does. S3 is the part a single call <i>cannot</i> do by
+              construction — independently check its own claims and improve
+              against that check. Build this and you've crossed from "API
+              wiring" to "agentic system design."
+            </p>
+
+            <div class="dd-col">
+              <div class="dd-t">The verifier — step by step</div>
+              <ol>
+                <li>
+                  Each finding already carries the source URL it came from.
+                  Re-fetch (or reuse the cached) source text for that claim.
+                </li>
+                <li>
+                  Make a <b>separate</b> Claude call whose only job is to judge:
+                  <i
+                    >"Here's a claim, here's the source text — does the text
+                    support it? keep / flag / drop, and quote the supporting
+                    line."</i
+                  >
+                  <div class="dd-note">
+                    <b>Why separate:</b> a fresh call with one narrow job and
+                    the real text in front of it is far more reliable than the
+                    original writer re-grading its own work.
+                    <b>Verification is easier than generation</b> — that
+                    asymmetry is the entire edge.
+                  </div>
+                </li>
+                <li>
+                  Drop every <span class="cdrop">drop</span>, keep every
+                  <span class="ckeep">keep</span>, fix the wording on
+                  <span class="cflag">flag</span>.
+                  <div class="dd-note">
+                    <b>Why it's the product:</b> the dropped claims are exactly
+                    the hallucinated citations that make LLM research
+                    untrustworthy. Removing them <i>is</i> the value.
+                  </div>
+                </li>
+              </ol>
+            </div>
+
+            <div class="dd-col">
+              <div class="dd-t">The generations loop — step by step</div>
+              <ol>
+                <li>Synthesize a report from the kept claims.</li>
+                <li>
+                  Score it:
+                  <code>faithfulness = claims_kept / claims_surfaced</code>.
+                </li>
+                <li>
+                  If below target and budget remains, research the gaps,
+                  re-verify, re-synthesize.
+                </li>
+                <li>
+                  Stop when the score plateaus or the budget is hit.
+                  <div class="dd-note">
+                    <b>Why a loop, not one pass:</b> one pass gives you whatever
+                    the first draft happened to contain. Iterating against an
+                    evaluator lets the system climb toward a target you can
+                    <i>measure</i> — 0.61 → 0.84 → 0.94. That climbing number is
+                    your proof.
+                  </div>
+                </li>
+              </ol>
+            </div>
+
+            <div class="dd-trap">
+              <b>The trap to name in an interview (and you've won):</b> if the
+              evaluator is just another LLM with the same blind spots, iterating
+              against it can
+              <b>game the metric without real improvement</b> (reward hacking).
+              That's exactly why the verifier is grounded in the actual source
+              <i>text</i>, and why you validate it against a 30-row human gold
+              set. Say this out loud and you sound like someone who has shipped
+              evals — because you have.
+            </div>
+          </div>
+
           <div class="asym" style="margin-top: 24px">
             <b>The one-line mental model —</b> sign up for
             <span class="accent">two APIs (Claude + Tavily)</span>, write an

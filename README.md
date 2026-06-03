@@ -31,6 +31,14 @@ across generations, and the agentic-vs-naive scorecard lands. The
 [project breakdown](https://seyonv.github.io/agentic-development-to-display/) is
 the full explainer (with a Research ⇄ Poker twin showing the pattern transfers).
 
+## Want to build it yourself?
+
+The **[Build Guide](https://seyonv.github.io/agentic-development-to-display/)**
+(third tab on the site) is the honest, step-by-step runbook — _what_ you're
+building and _why_, the two accounts you need (Claude + Tavily — **no GPUs, no
+Modal**), the exact tooling, and a 6-step path with a "done when" for each, plus
+a deep dive on the verifier + generations loop (the part everyone gets stuck on).
+
 ## Architecture
 
 ```
