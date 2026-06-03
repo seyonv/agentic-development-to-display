@@ -720,6 +720,24 @@
         letter-spacing: 0.06em;
       }
 
+      /* why line inside table cells (accounts + tooling) */
+      .whyrow {
+        font-size: 11.5px;
+        color: var(--muted);
+        line-height: 1.55;
+        margin-top: 8px;
+        padding-left: 11px;
+        border-left: 2px solid rgba(201, 242, 78, 0.35);
+      }
+      .whyrow b {
+        color: var(--accent);
+        letter-spacing: 0.04em;
+      }
+      .gtable td .dim {
+        color: var(--faint);
+        font-size: 10px;
+      }
+
       /* ---------- S3 deep dive ---------- */
       .deepdive {
         margin-top: 26px;
@@ -3288,17 +3306,41 @@ state = init(goal)
           <table class="gtable big">
             <tr>
               <td><b>Anthropic API</b><span>console.anthropic.com</span></td>
-              <td>Claude — your model / inference</td>
+              <td>
+                Claude — the brain in every agent
+                <div class="whyrow">
+                  <b>Why</b> — planner, workers, verifier, synthesizer are all
+                  Claude calls. <i>This is your inference:</i> Anthropic runs
+                  the GPUs, you just send text. That's why you need no host of
+                  your own.
+                </div>
+              </td>
               <td class="cost">pay-as-you-go · ~$5 covers tons of dev</td>
             </tr>
             <tr>
               <td><b>Tavily</b><span>tavily.com</span></td>
-              <td>Web search tool for the workers</td>
+              <td>
+                Real web sources for the workers
+                <div class="whyrow">
+                  <b>Why</b> — verification only works because there's real
+                  source <i>text</i> to check a claim against. No Tavily →
+                  nothing to verify → the whole faithfulness thesis collapses.
+                  It's the grounding the project stands on.
+                </div>
+              </td>
               <td class="cost">free · 1,000 searches/mo</td>
             </tr>
             <tr>
               <td><b>GitHub</b><span>github.com</span></td>
-              <td>Repo + free static hosting (Pages)</td>
+              <td>
+                Repo + free static hosting (Pages)
+                <div class="whyrow">
+                  <b>Why</b> — Pages turns your demo into a
+                  <i>shareable URL</i>, and the link is what lands in five
+                  seconds. Version control + free hosting + the front door, in
+                  one account.
+                </div>
+              </td>
               <td class="cost">free · you have it</td>
             </tr>
           </table>
@@ -3308,23 +3350,44 @@ state = init(goal)
               <td><b>Exa / Brave Search</b></td>
               <td>
                 Better/different search — swaps behind the same SearchTool
-                interface
+                interface.
+                <div class="whyrow">
+                  <b>Why maybe</b> — only if Tavily's results are thin for your
+                  topic. It's a one-line swap, which itself shows you designed
+                  for swappability.
+                </div>
               </td>
             </tr>
             <tr>
               <td><b>Chroma + embeddings</b></td>
-              <td>Only for the RAG agent (#8)</td>
+              <td>
+                Only for the RAG agent (#8).
+                <div class="whyrow">
+                  <b>Why not here</b> — the research engine searches the live
+                  web, so it needs no vector DB at all.
+                </div>
+              </td>
             </tr>
             <tr>
               <td><b>Langfuse / LangSmith</b></td>
               <td>
-                Hosted tracing — <i>skip it</i>; you build your own ~150-line
-                tracer (better story)
+                Hosted tracing — <i>skip it</i>.
+                <div class="whyrow">
+                  <b>Why skip</b> — you write a ~150-line tracer yourself. "I
+                  built observability" beats "I imported it," and you learn what
+                  a span actually is.
+                </div>
               </td>
             </tr>
             <tr>
               <td><b>Modal Labs</b></td>
-              <td>Only the cases in §0 above</td>
+              <td>
+                Only the cases in §0 above.
+                <div class="whyrow">
+                  <b>Why not</b> — you're not hosting a model, so there's no GPU
+                  to rent. Revisit only for fine-tuning or sandboxed code-exec.
+                </div>
+              </td>
             </tr>
           </table>
         </section>
@@ -3356,6 +3419,78 @@ uv pip install --dev pytest pytest-asyncio ruff
 <span class="c"># keys in a .env (never commit it):</span>
 echo 'ANTHROPIC_API_KEY=sk-ant-...' &gt;&gt; .env
 echo 'TAVILY_API_KEY=tvly-...'      &gt;&gt; .env</pre>
+
+          <h3 class="gh accent-h" style="margin-top: 24px">
+            Why each one — and why not a framework
+          </h3>
+          <table class="gtable">
+            <tr>
+              <td><b>anthropic</b></td>
+              <td>
+                The model client.
+                <div class="whyrow">
+                  <b>Why</b> — the only way you talk to Claude. Every agent is a
+                  call through this.
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><b>pydantic</b></td>
+              <td>
+                Typed agent I/O.
+                <div class="whyrow">
+                  <b>Why</b> — forces structured output so you
+                  <i>never parse model prose</i>. It's what makes tool-use
+                  reliable and every agent boundary a real type, not a hopeful
+                  regex.
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><b>httpx</b></td>
+              <td>
+                Fetch the page body.
+                <div class="whyrow">
+                  <b>Why</b> — the verifier checks claims against the
+                  <i>full source text</i>. A search snippet isn't enough to
+                  verify against; you need the real article.
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><b>asyncio</b> <span class="dim">(stdlib)</span></td>
+              <td>
+                Run workers in parallel.
+                <div class="whyrow">
+                  <b>Why</b> — free, zero dependencies, and it <i>is</i> the
+                  orchestration skill you're demonstrating. Owning this loop is
+                  the whole point.
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><b>pytest</b></td>
+              <td>
+                Deterministic tests.
+                <div class="whyrow">
+                  <b>Why</b> — mock the model at the seam to test the loop logic
+                  without spending tokens or flaking on live calls. This is how
+                  you prove the orchestration works.
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><b>not LangChain / LangGraph</b></td>
+              <td>
+                You hand-roll the loop.
+                <div class="whyrow">
+                  <b>Why not</b> — a framework hides the exact part worth
+                  showing. "I designed the orchestration" is the signal;
+                  importing it sends the opposite one.
+                </div>
+              </td>
+            </tr>
+          </table>
         </section>
       </div>
 
