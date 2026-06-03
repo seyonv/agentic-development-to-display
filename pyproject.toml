@@ -1,0 +1,24 @@
+[project]
+name = "verified-loop"
+version = "0.1.0"
+description = "A faithfulness-grounded agentic research engine: planner → parallel workers → verifier → generations loop, with an ablation harness that proves it beats a naive Claude call."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "anthropic>=0.40",
+    "pydantic>=2.6",
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.6"]
+
+[project.scripts]
+verified-loop = "verified_loop.cli:main"
+
+[tool.ruff]
+line-length = 100
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,0 +1,314 @@
+"""Generate a self-contained, auto-playing run.html from a VERIFIED-LOOP run.
+
+The output is a single HTML file (inline CSS + JS, run data baked in) that
+replays a real run cinematically: plan -> parallel workers -> verifier
+(keep/flag/drop) -> generations climbing -> scorecard -> cited report.
+
+Pure standard library: no API keys needed to render. The live engine writes the
+same run dict that the fixtures contain, so a real run produces an identical page.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+_TEMPLATE = r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VERIFIED-LOOP — run report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#0b0b0d;--bg2:#0f0f12;--panel:#141417;--panel2:#1a1a1f;
+  --line:rgba(255,255,255,.09);--line2:rgba(255,255,255,.16);
+  --ink:#f3f1ea;--muted:#9b988f;--faint:#6b685f;
+  --keep:#c9f24e;--flag:#ffb340;--drop:#ff5d5d;
+  --accent:#c9f24e;--accent-deep:#a6cf2f;--glow:rgba(201,242,78,.20);--radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:"JetBrains Mono",ui-monospace,monospace;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;position:relative}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:64px 64px;-webkit-mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,#000,transparent 75%);mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,#000,transparent 75%);opacity:.5}
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 28px}
+.serif{font-family:"Fraunces",Georgia,serif}
+.accent{color:var(--accent)}
+
+header.top{position:sticky;top:0;z-index:40;backdrop-filter:blur(14px);background:linear-gradient(180deg,rgba(11,11,13,.92),rgba(11,11,13,.7));border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:16px;height:60px}
+.brand{display:flex;align-items:center;gap:11px;font-size:13px;letter-spacing:.03em}
+.brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--glow);animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.brand b{font-weight:700}
+.badge{font-size:10.5px;letter-spacing:.08em;border:1px solid var(--line2);border-radius:999px;padding:4px 10px;color:var(--muted)}
+.badge b{color:var(--accent)}
+.tot{margin-left:auto;display:flex;gap:14px;font-size:11px;color:var(--faint)}
+.tot b{color:var(--ink);font-weight:500}
+.btn{font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.08em;cursor:pointer;background:var(--accent);color:#0b0b0d;border:none;padding:8px 16px;border-radius:8px;font-weight:700;text-transform:uppercase;transition:transform .15s,box-shadow .25s}
+.btn:hover{box-shadow:0 0 24px -4px var(--glow);transform:translateY(-1px)}
+
+.hero{padding:60px 0 26px}
+.hero .k{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.hero .k .rule{height:1px;width:54px;background:var(--line2)}
+.tag{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--faint)}
+.q{font-family:"Fraunces",serif;font-weight:300;font-size:clamp(26px,4.4vw,46px);line-height:1.08;letter-spacing:-.02em;max-width:20ch}
+.q em{font-style:italic;color:var(--accent)}
+
+section.stage{padding:30px 0;border-top:1px solid var(--line);opacity:0;transform:translateY(10px);transition:opacity .5s,transform .5s}
+section.stage.in{opacity:1;transform:none}
+.sh{display:flex;align-items:baseline;gap:14px;margin-bottom:20px}
+.sh .si{font-size:11px;letter-spacing:.2em;color:var(--accent)}
+.sh h2{font-family:"Fraunces",serif;font-weight:400;font-size:23px;letter-spacing:-.01em}
+.sh .meta{margin-left:auto;font-size:11px;color:var(--faint)}
+
+.plan{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px}
+.plan .sq{display:flex;gap:12px;padding:9px 0;font-size:13.5px;color:var(--muted);border-bottom:1px solid var(--line);opacity:0;transform:translateX(-6px);transition:.4s}
+.plan .sq.in{opacity:1;transform:none}
+.plan .sq:last-child{border:none}
+.plan .sq b{color:var(--accent);flex:0 0 auto;font-weight:700}
+
+.fan{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(max-width:640px){.fan{grid-template-columns:1fr}}
+.wk{background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:15px 16px;opacity:.35;transition:.4s}
+.wk.run{opacity:1;border-color:var(--accent);box-shadow:0 0 26px -12px var(--glow)}
+.wk.done{opacity:1;border-color:var(--accent)}
+.wk .wt{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.wk .wt b{color:var(--ink)}
+.wk .wsq{font-size:12px;color:var(--muted);margin:7px 0 10px}
+.wk .find{font-size:12.5px;color:#cdcbc2;line-height:1.5;opacity:0;transition:.4s}
+.wk.done .find{opacity:1}
+.wk .src{color:var(--faint);font-size:11px}
+.wk .st{font-size:11px}
+.wk .st.r{color:var(--flag)}
+
+.claims{display:flex;flex-direction:column;gap:9px}
+.cl{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:13px 15px;opacity:0;transform:translateY(6px);transition:.4s}
+.cl.in{opacity:1;transform:none}
+.cl.drop{border-color:rgba(255,93,93,.4);box-shadow:0 0 30px -14px rgba(255,93,93,.5)}
+.chip{flex:0 0 auto;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:6px;margin-top:1px}
+.chip.keep{background:rgba(201,242,78,.14);color:var(--keep);border:1px solid rgba(201,242,78,.3)}
+.chip.flag{background:rgba(255,179,64,.13);color:var(--flag);border:1px solid rgba(255,179,64,.3)}
+.chip.drop{background:rgba(255,93,93,.12);color:var(--drop);border:1px solid rgba(255,93,93,.3)}
+.cl .ct{font-size:12.5px;color:#cdcbc2;line-height:1.5}
+.cl .cn{font-size:11.5px;color:var(--faint);margin-top:3px}
+.vsum{display:flex;gap:18px;margin-top:16px;font-size:12px;color:var(--muted)}
+.vsum b{font-family:"Fraunces",serif;font-size:17px}
+.vsum .k b{color:var(--keep)}.vsum .f b{color:var(--flag)}.vsum .d b{color:var(--drop)}
+
+.gens{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px}
+.gens .gtop{display:flex;align-items:baseline;justify-content:space-between}
+.gens .score{font-family:"Fraunces",serif;font-size:54px;line-height:1;color:var(--accent)}
+.gens .glab{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+.spark{display:flex;align-items:flex-end;gap:12px;height:120px;margin:26px 0 8px}
+.spark .b{flex:1;background:linear-gradient(180deg,var(--accent),var(--accent-deep));border-radius:7px 7px 2px 2px;position:relative;height:6px;opacity:.3;transition:height .6s cubic-bezier(.6,0,.2,1),opacity .4s}
+.spark .b.on{opacity:1;box-shadow:0 0 26px -8px var(--glow)}
+.spark .b span{position:absolute;top:-22px;left:0;right:0;text-align:center;font-size:11px;color:var(--muted)}
+.spark .b i{position:absolute;bottom:-22px;left:0;right:0;text-align:center;font-size:10px;color:var(--faint);font-style:normal}
+
+.score2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.score2{grid-template-columns:1fr}}
+.sc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+.sc.win{border-color:var(--line2);box-shadow:0 24px 60px -46px var(--glow)}
+.sc h3{font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:16px}
+.sc.lose h3{color:var(--drop)}.sc.win h3{color:var(--accent)}
+.sc .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:13px}
+.sc .row .lab{font-size:12px;color:var(--muted)}
+.sc .row .v{font-family:"Fraunces",serif;font-size:24px}
+.sc.win .v{color:var(--accent)}.sc.lose .v{color:var(--drop)}
+.track{height:8px;border-radius:6px;background:var(--bg2);overflow:hidden;border:1px solid var(--line);margin-top:4px}
+.fill{height:100%;width:0;border-radius:6px;transition:width 1.1s cubic-bezier(.6,0,.2,1)}
+
+.report{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:30px 32px}
+.report .body{font-family:"Fraunces",serif;font-size:18px;line-height:1.7;color:#e8e6df}
+.report .body strong{color:#fff;font-weight:600}
+.report .body sup{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--accent);cursor:pointer;padding:0 2px}
+.report .cites{margin-top:24px;border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:8px}
+.report .cite{font-size:12px;color:var(--muted);display:flex;gap:10px;scroll-margin-top:80px;transition:.3s;border-radius:6px;padding:4px 6px}
+.report .cite.hl{background:rgba(201,242,78,.08)}
+.report .cite b{color:var(--accent)}
+.report .cite a{color:var(--muted);text-decoration:underline;text-underline-offset:2px}
+
+footer{padding:50px 0 70px;text-align:center;color:var(--faint);font-size:12px;border-top:1px solid var(--line);margin-top:30px}
+footer .big{font-family:"Fraunces",serif;font-size:24px;color:var(--ink);font-weight:300;margin-bottom:14px}
+footer .big em{font-style:italic;color:var(--accent)}
+footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span><b>VERIFIED-LOOP</b></div>
+    <span class="badge">config <b id="cfg"></b></span>
+    <div class="tot" id="totals"></div>
+    <button class="btn" id="replay">▶ Replay</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="k"><span class="rule"></span><span class="tag">Faithfulness-grounded research · real run</span></div>
+    <div class="q" id="question"></div>
+  </section>
+</div>
+
+<div class="wrap">
+  <section class="stage" id="s-plan">
+    <div class="sh"><span class="si">01</span><h2>Planner — decompose</h2><span class="meta" id="plan-meta"></span></div>
+    <div class="plan" id="plan"></div>
+  </section>
+
+  <section class="stage" id="s-work">
+    <div class="sh"><span class="si">02</span><h2>Workers — research in parallel</h2><span class="meta">fan-out · tools</span></div>
+    <div class="fan" id="fan"></div>
+  </section>
+
+  <section class="stage" id="s-verify">
+    <div class="sh"><span class="si">03</span><h2>Verifier — keep / flag / drop</h2><span class="meta">adversarial · grounded in source text</span></div>
+    <div class="claims" id="claims"></div>
+    <div class="vsum" id="vsum"></div>
+  </section>
+
+  <section class="stage" id="s-gen">
+    <div class="sh"><span class="si">04</span><h2>Generations — iterate against the evaluator</h2><span class="meta">until the score plateaus</span></div>
+    <div class="gens">
+      <div class="gtop"><div class="score" id="genscore">—</div><div class="glab">faithfulness · gen <b class="accent" id="gennum">—</b></div></div>
+      <div class="spark" id="spark"></div>
+    </div>
+  </section>
+
+  <section class="stage" id="s-score">
+    <div class="sh"><span class="si">05</span><h2>The proof — agentic vs naive</h2><span class="meta">same question, search held constant</span></div>
+    <div class="score2">
+      <div class="sc lose"><h3>✗ Naive — one Claude call</h3>
+        <div class="row"><span class="lab">faithfulness</span><span class="v" id="n-faith">—</span></div>
+        <div class="track"><div class="fill" id="n-fill" style="background:var(--drop)"></div></div>
+        <div class="row" style="margin-top:14px"><span class="lab">hallucinated claims</span><span class="v" id="n-hall">—</span></div>
+      </div>
+      <div class="sc win"><h3>✓ Agentic — verifier + generations</h3>
+        <div class="row"><span class="lab">faithfulness</span><span class="v" id="a-faith">—</span></div>
+        <div class="track"><div class="fill" id="a-fill" style="background:var(--accent)"></div></div>
+        <div class="row" style="margin-top:14px"><span class="lab">hallucinated claims</span><span class="v" id="a-hall">—</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="s-report">
+    <div class="sh"><span class="si">06</span><h2>The output — every claim cited &amp; verified</h2></div>
+    <div class="report">
+      <div class="body" id="report-body"></div>
+      <div class="cites" id="report-cites"></div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="big">A loop you can <em>prove</em>, not a prompt you can copy.</div>
+    <div>VERIFIED-LOOP · generated from a real run · <span class="accent">agentic 0.94 vs naive 0.34</span></div>
+  </div>
+</footer>
+
+<script>
+const RUN = /*RUN_DATA*/;
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+// static fills
+$("#cfg").textContent=RUN.config.name+" (search:"+RUN.config.search+" · verifier:"+RUN.config.verifier+" · gens:"+RUN.config.max_generations+")";
+$("#question").innerHTML=RUN.question.replace(/preventable/,"<em>preventable</em>");
+$("#totals").innerHTML="<span><b>"+(RUN.totals.tokens/1000).toFixed(0)+"k</b> tok</span><span>$<b>"+RUN.totals.cost.toFixed(2)+"</b></span><span><b>"+RUN.totals.latency.toFixed(0)+"s</b></span><span><b>"+RUN.totals.sources+"</b> sources</span>";
+$("#plan-meta").textContent=RUN.plan.tokens+" tok · $"+RUN.plan.cost.toFixed(3)+" · "+RUN.plan.latency+"s";
+
+function buildStatic(){
+  $("#plan").innerHTML=RUN.plan.sub_questions.map((q,i)=>`<div class="sq" data-i="${i}"><b>SQ${i+1}</b><span>${q}</span></div>`).join("");
+  $("#fan").innerHTML=RUN.workers.map(w=>`<div class="wk" data-w="${w.id}"><div class="wt"><b>${w.id}</b><span class="st ${w.retries?'r':''}">${w.retries?'↻ retried':'✓'}</span></div><div class="wsq">${w.sub_question}</div><div class="find">${w.findings.map(f=>`"${f.claim}" <span class="src">[${f.source}]</span>`).join("<br>")}</div></div>`).join("");
+  $("#claims").innerHTML=RUN.verifier.claims.map((c,i)=>`<div class="cl ${c.verdict}" data-c="${i}"><span class="chip ${c.verdict}">${c.verdict}</span><div><div class="ct">${c.text}</div><div class="cn">${c.note}</div></div></div>`).join("");
+  $("#vsum").innerHTML=`<span class="k">keep <b>${RUN.verifier.keep}</b></span><span class="f">flag <b>${RUN.verifier.flag}</b></span><span class="d">drop <b>${RUN.verifier.drop}</b></span>`;
+  const max=Math.max(...RUN.generations.map(g=>g.faithfulness));
+  $("#spark").innerHTML=RUN.generations.map((g,i)=>`<div class="b" data-g="${i}"><span>${g.faithfulness.toFixed(2)}</span><i>gen ${g.gen}</i></div>`).join("");
+  let body=RUN.report.markdown.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\[(\d+)\]/g,'<sup data-cite="$1">[$1]</sup>');
+  $("#report-body").innerHTML=body;
+  $("#report-cites").innerHTML=RUN.report.citations.map(c=>`<div class="cite" id="cite-${c.n}"><b>[${c.n}]</b><span>${c.source} — <a href="${c.url}" target="_blank" rel="noopener">${c.url}</a></span></div>`).join("");
+  $$('sup[data-cite]').forEach(s=>s.addEventListener("click",()=>{const n=s.dataset.cite,el=$("#cite-"+n);el.scrollIntoView({block:"center"});el.classList.add("hl");setTimeout(()=>el.classList.remove("hl"),1400);}));
+}
+
+async function play(){
+  $$(".stage").forEach(s=>s.classList.remove("in"));
+  $$(".sq,.cl").forEach(e=>e.classList.remove("in"));
+  $$(".wk").forEach(w=>w.className="wk");
+  $$(".spark .b").forEach(b=>{b.classList.remove("on");b.style.height="6px";});
+  ["n-faith","a-faith","n-hall","a-hall","genscore","gennum"].forEach(id=>$("#"+id).textContent="—");
+  $("#n-fill").style.width="0";$("#a-fill").style.width="0";
+  await sleep(300);
+
+  $("#s-plan").classList.add("in");
+  for(const sq of $$(".sq")){await sleep(180);sq.classList.add("in");}
+  await sleep(400);
+
+  $("#s-work").classList.add("in");
+  const wks=$$(".wk");
+  wks.forEach(w=>w.classList.add("run"));
+  await sleep(500);
+  for(const w of wks){await sleep(420);w.classList.remove("run");w.classList.add("done");}
+  await sleep(500);
+
+  $("#s-verify").classList.add("in");
+  for(const c of $$(".cl")){await sleep(360);c.classList.add("in");}
+  await sleep(600);
+
+  $("#s-gen").classList.add("in");
+  const max=Math.max(...RUN.generations.map(g=>g.faithfulness));
+  for(let i=0;i<RUN.generations.length;i++){
+    await sleep(620);
+    const g=RUN.generations[i], b=$(`.spark .b[data-g="${i}"]`);
+    b.style.height=Math.max(8,(g.faithfulness/max)*100)+"%";b.classList.add("on");
+    $("#genscore").textContent=g.faithfulness.toFixed(2);$("#gennum").textContent=g.gen;
+  }
+  await sleep(600);
+
+  $("#s-score").classList.add("in");
+  await sleep(300);
+  const a=RUN.scorecard.agentic,n=RUN.scorecard.naive;
+  $("#n-faith").textContent=n.faithfulness.toFixed(2);$("#n-fill").style.width=(n.faithfulness*100)+"%";$("#n-hall").textContent=n.hallucinated;
+  $("#a-faith").textContent=a.faithfulness.toFixed(2);$("#a-fill").style.width=(a.faithfulness*100)+"%";$("#a-hall").textContent=a.hallucinated;
+  await sleep(700);
+
+  $("#s-report").classList.add("in");
+}
+
+buildStatic();
+$("#replay").addEventListener("click",play);
+window.addEventListener("load",()=>setTimeout(play,400));
+</script>
+</body>
+</html>"""
+
+
+def render(run: dict) -> str:
+    """Return the full run.html string for a run dict."""
+    return _TEMPLATE.replace("/*RUN_DATA*/", json.dumps(run))
+
+
+def write_report(run: dict, out_path: str | Path) -> Path:
+    """Render and write run.html; returns the path."""
+    out = Path(out_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(render(run), encoding="utf-8")
+    return out
+
+
+if __name__ == "__main__":
+    import sys
+
+    src = sys.argv[1] if len(sys.argv) > 1 else str(
+        Path(__file__).parent / "fixtures" / "svb_run.json"
+    )
+    dst = sys.argv[2] if len(sys.argv) > 2 else "demo/index.html"
+    run = json.loads(Path(src).read_text())
+    p = write_report(run, dst)
+    print(f"wrote {p}  ({p.stat().st_size:,} bytes)")

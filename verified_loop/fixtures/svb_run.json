@@ -1,0 +1,160 @@
+{
+  "question": "What were the main causes of the 2023 Silicon Valley Bank collapse, and which were preventable?",
+  "config": {
+    "name": "A2",
+    "search": true,
+    "verifier": true,
+    "max_generations": 3
+  },
+  "plan": {
+    "sub_questions": [
+      "SVB's balance-sheet and interest-rate exposure before the collapse",
+      "The bank-run timeline of March 8–10, 2023",
+      "Regulatory factors (2018 supervisory rollback, Fed oversight)",
+      "Which interventions could have prevented the failure"
+    ],
+    "tokens": 820,
+    "cost": 0.004,
+    "latency": 1.2
+  },
+  "workers": [
+    {
+      "id": "W1",
+      "sub_question": "Balance-sheet / rate exposure",
+      "status": "ok",
+      "retries": 0,
+      "findings": [
+        {
+          "claim": "SVB held roughly $15B in unrealized losses on held-to-maturity securities by end-2022.",
+          "source": "FDIC",
+          "url": "https://www.fdic.gov/news/press-releases/2023/pr23016.html"
+        }
+      ]
+    },
+    {
+      "id": "W2",
+      "sub_question": "Bank-run timeline",
+      "status": "ok",
+      "retries": 0,
+      "findings": [
+        {
+          "claim": "Customers initiated about $42B in withdrawal requests on March 9 alone.",
+          "source": "CA DFPI",
+          "url": "https://dfpi.ca.gov/"
+        }
+      ]
+    },
+    {
+      "id": "W3",
+      "sub_question": "Regulatory factors",
+      "status": "recovered",
+      "retries": 1,
+      "findings": [
+        {
+          "claim": "Fed supervisors identified issues at SVB in 2021 but did not escalate forcefully.",
+          "source": "Fed Barr review",
+          "url": "https://www.federalreserve.gov/publications/files/svb-review-20230428.pdf"
+        }
+      ]
+    },
+    {
+      "id": "W4",
+      "sub_question": "Preventability",
+      "status": "ok",
+      "retries": 0,
+      "findings": [
+        {
+          "claim": "Stronger stress testing and earlier supervisory action could have flagged the rate risk.",
+          "source": "Fed Barr review",
+          "url": "https://www.federalreserve.gov/publications/files/svb-review-20230428.pdf"
+        }
+      ]
+    }
+  ],
+  "verifier": {
+    "keep": 9,
+    "flag": 1,
+    "drop": 1,
+    "claims": [
+      {
+        "text": "SVB had ~$15B in unrealized held-to-maturity losses by end-2022.",
+        "verdict": "keep",
+        "note": "Source text states the ~$15B HTM figure.",
+        "source": "FDIC"
+      },
+      {
+        "text": "$42B in withdrawal requests on March 9.",
+        "verdict": "flag",
+        "note": "Source says 'requested', not 'withdrawn' — wording corrected.",
+        "source": "CA DFPI"
+      },
+      {
+        "text": "SVB had no Chief Risk Officer for eight months in 2022.",
+        "verdict": "drop",
+        "note": "No cited source supports this duration — fabricated.",
+        "source": "—"
+      },
+      {
+        "text": "Fed supervisors flagged issues in 2021 but did not escalate.",
+        "verdict": "keep",
+        "note": "Supported by the Barr review.",
+        "source": "Fed Barr review"
+      }
+    ]
+  },
+  "generations": [
+    {
+      "gen": 1,
+      "faithfulness": 0.61,
+      "note": "first draft — 1 unsupported claim, 1 misquote"
+    },
+    {
+      "gen": 2,
+      "faithfulness": 0.84,
+      "note": "repaired the misquote, added a source"
+    },
+    {
+      "gen": 3,
+      "faithfulness": 0.94,
+      "note": "dropped the fabricated claim — plateau"
+    }
+  ],
+  "report": {
+    "markdown": "Silicon Valley Bank failed in March 2023 after a classic asset-liability mismatch met a record-speed bank run. As rates rose through 2022, the bank carried roughly **$15B in unrealized losses** on its held-to-maturity bond portfolio [1]. Its deposit base was heavily **uninsured and concentrated** among tech and venture clients, making it unusually run-prone. When concern spread, customers initiated about **$42B in withdrawal *requests*** on March 9 alone [2]. Crucially, the failure was **partly preventable**: Federal Reserve supervisors had identified weaknesses as early as 2021 but did not escalate forcefully [3], and stronger stress testing of interest-rate risk could have surfaced the exposure earlier [3].",
+    "citations": [
+      {
+        "n": 1,
+        "source": "FDIC press release (2023)",
+        "url": "https://www.fdic.gov/news/press-releases/2023/pr23016.html"
+      },
+      { "n": 2, "source": "California DFPI", "url": "https://dfpi.ca.gov/" },
+      {
+        "n": 3,
+        "source": "Federal Reserve — Barr review (Apr 2023)",
+        "url": "https://www.federalreserve.gov/publications/files/svb-review-20230428.pdf"
+      }
+    ]
+  },
+  "scorecard": {
+    "agentic": {
+      "faithfulness": 0.94,
+      "hallucinated": 0,
+      "claims_kept": 9,
+      "claims_dropped": 1
+    },
+    "naive": {
+      "faithfulness": 0.34,
+      "hallucinated": 3,
+      "claims_kept": 0,
+      "claims_dropped": 0
+    }
+  },
+  "totals": {
+    "tokens": 38000,
+    "cost": 0.21,
+    "latency": 24.0,
+    "dropped": 1,
+    "flagged": 1,
+    "sources": 3
+  }
+}
