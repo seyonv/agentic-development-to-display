@@ -575,6 +575,80 @@
         line-height: 1.8;
       }
 
+      /* ---------- build guide ---------- */
+      .gh {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--faint);
+        margin: 26px 0 12px;
+      }
+      .gh.accent-h {
+        color: var(--accent);
+        margin-top: 0;
+      }
+      table.gtable {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+      table.gtable td {
+        padding: 14px 18px;
+        font-size: 13px;
+        color: var(--muted);
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+      table.gtable tr:last-child td {
+        border-bottom: none;
+      }
+      table.gtable td b {
+        color: var(--ink);
+        font-weight: 600;
+        display: block;
+      }
+      table.gtable td span {
+        color: var(--faint);
+        font-size: 11px;
+      }
+      table.gtable.big td:first-child {
+        width: 24%;
+      }
+      table.gtable td.cost {
+        color: var(--accent);
+        font-size: 12px;
+        text-align: right;
+        white-space: nowrap;
+      }
+      table.gtable td.no {
+        color: var(--flag);
+        text-align: right;
+        white-space: nowrap;
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        width: 32%;
+      }
+      pre.code.block-code {
+        background: #08080a;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        line-height: 1.95;
+        color: #cdcbc2;
+        overflow-x: auto;
+        margin: 0;
+      }
+      pre.code.block-code .c {
+        color: var(--faint);
+      }
+
       /* ---------- ladder ---------- */
       .ladder {
         display: flex;
@@ -886,6 +960,45 @@
       .evalsec p b {
         color: var(--ink);
         font-weight: 600;
+      }
+      table.dataspec {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 4px;
+      }
+      table.dataspec td {
+        padding: 7px 0;
+        vertical-align: top;
+        font-size: 12px;
+        line-height: 1.5;
+        border-bottom: 1px solid rgba(255, 179, 64, 0.12);
+      }
+      table.dataspec tr:last-child td {
+        border-bottom: none;
+      }
+      table.dataspec td:first-child {
+        width: 92px;
+        color: var(--flag);
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        padding-right: 12px;
+        padding-top: 9px;
+      }
+      table.dataspec td:last-child {
+        color: #cdcbc2;
+      }
+      table.dataspec code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        color: var(--accent);
+        background: var(--bg2);
+        border: 1px solid var(--line);
+        border-radius: 5px;
+        padding: 4px 7px;
+        display: inline-block;
+        word-break: break-word;
+        margin-top: 2px;
       }
       .datasec code {
         font-family: "JetBrains Mono", monospace;
@@ -1896,6 +2009,7 @@
         <nav class="tabs" id="tabs">
           <button class="tabbtn active" data-view="project">The Project</button>
           <button class="tabbtn" data-view="agents">Build Agents</button>
+          <button class="tabbtn" data-view="guide">Build Guide</button>
         </nav>
         <div class="toggle" id="domtoggle">
           <span class="lbl">Domain</span>
@@ -2881,6 +2995,284 @@ state = init(goal)
     </div>
     <!-- /view-agents -->
 
+    <div id="view-guide" hidden>
+      <div class="wrap">
+        <section class="hero" style="padding-bottom: 34px">
+          <div class="k kicker">
+            <span class="rule"></span>
+            <span class="tag">Build guide · what you actually do</span>
+          </div>
+          <h1 class="headline">
+            No GPUs.<br />Two API keys and a <em>loop</em>.
+          </h1>
+          <p class="lede">
+            The honest setup, start to finish: which accounts to create, the
+            exact tooling, the inference question answered (you don't need
+            Modal), and the step-by-step build. Nothing here takes a cluster.
+          </p>
+        </section>
+      </div>
+
+      <!-- 0 · inference -->
+      <div class="wrap">
+        <section class="block">
+          <div class="sec-head">
+            <span class="sec-idx">0</span>
+            <div>
+              <h2>The inference question, answered first</h2>
+              <p class="sec-sub">
+                You are <b>not hosting a model</b>, so you do not need any GPU /
+                inference infrastructure. Your "inference" is one HTTPS call to
+                Anthropic — they run the model, you pay per token.
+              </p>
+            </div>
+          </div>
+          <div class="primer">
+            <div class="primer-h" style="color: var(--drop)">
+              ✗ You do NOT need: Modal Labs · Replicate · RunPod · Together ·
+              Fireworks · Groq · vLLM · Ollama · Hugging Face Inference
+            </div>
+            <p style="font-size: 13px; color: var(--muted); line-height: 1.65">
+              Those host or fine-tune your <i>own</i> weights on GPUs. You're
+              calling Claude over an API. You'd only revisit a GPU host much
+              later and only for one of these:
+            </p>
+            <table class="gtable" style="margin-top: 16px">
+              <tr>
+                <td>
+                  Fine-tune / distill your own model (the poker "policy net"
+                  stretch)
+                </td>
+                <td class="no">not now</td>
+              </tr>
+              <tr>
+                <td>Self-host an open-source model</td>
+                <td class="no">not now</td>
+              </tr>
+              <tr>
+                <td>Sandboxed code execution (only the CSV-analyst agent)</td>
+                <td class="no">later, that one agent</td>
+              </tr>
+              <tr>
+                <td>Scheduled cloud / background runs</td>
+                <td class="no">not now</td>
+              </tr>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- 1 · accounts -->
+      <div class="wrap">
+        <section class="block">
+          <div class="sec-head">
+            <span class="sec-idx">1</span>
+            <div><h2>Accounts &amp; services to sign up for</h2></div>
+          </div>
+          <h3 class="gh accent-h">Required — the whole core runs on these</h3>
+          <table class="gtable big">
+            <tr>
+              <td><b>Anthropic API</b><span>console.anthropic.com</span></td>
+              <td>Claude — your model / inference</td>
+              <td class="cost">pay-as-you-go · ~$5 covers tons of dev</td>
+            </tr>
+            <tr>
+              <td><b>Tavily</b><span>tavily.com</span></td>
+              <td>Web search tool for the workers</td>
+              <td class="cost">free · 1,000 searches/mo</td>
+            </tr>
+            <tr>
+              <td><b>GitHub</b><span>github.com</span></td>
+              <td>Repo + free static hosting (Pages)</td>
+              <td class="cost">free · you have it</td>
+            </tr>
+          </table>
+          <h3 class="gh">Optional — only if</h3>
+          <table class="gtable">
+            <tr>
+              <td><b>Exa / Brave Search</b></td>
+              <td>
+                Better/different search — swaps behind the same SearchTool
+                interface
+              </td>
+            </tr>
+            <tr>
+              <td><b>Chroma + embeddings</b></td>
+              <td>Only for the RAG agent (#8)</td>
+            </tr>
+            <tr>
+              <td><b>Langfuse / LangSmith</b></td>
+              <td>
+                Hosted tracing — <i>skip it</i>; you build your own ~150-line
+                tracer (better story)
+              </td>
+            </tr>
+            <tr>
+              <td><b>Modal Labs</b></td>
+              <td>Only the cases in §0 above</td>
+            </tr>
+          </table>
+        </section>
+      </div>
+
+      <!-- 2 · local tooling -->
+      <div class="wrap">
+        <section class="block">
+          <div class="sec-head">
+            <span class="sec-idx">2</span>
+            <div>
+              <h2>Local tooling — one-time, ~15 min</h2>
+              <p class="sec-sub">
+                Libraries you'll actually import: <b>anthropic</b> (model),
+                <b>pydantic</b> (typed I/O), <b>httpx</b> (fetch),
+                <b>asyncio</b> (parallelism, stdlib), <b>pytest</b> (tests). No
+                LangChain — you hand-roll the loop on purpose.
+              </p>
+            </div>
+          </div>
+          <pre
+            class="code block-code"
+          >brew install uv gh            <span class="c"># package manager + GitHub CLI</span>
+
+uv venv && source .venv/bin/activate
+uv pip install anthropic pydantic httpx tavily-python
+uv pip install --dev pytest pytest-asyncio ruff
+
+<span class="c"># keys in a .env (never commit it):</span>
+echo 'ANTHROPIC_API_KEY=sk-ant-...' &gt;&gt; .env
+echo 'TAVILY_API_KEY=tvly-...'      &gt;&gt; .env</pre>
+        </section>
+      </div>
+
+      <!-- 3 · the build -->
+      <div class="wrap">
+        <section class="block">
+          <div class="sec-head">
+            <span class="sec-idx">3</span>
+            <div>
+              <h2>The build — step by step</h2>
+              <p class="sec-sub">
+                Each step says what you do and how you know it's done. Build in
+                order — each runs before the next exists. M1–M4 alone is a
+                complete project.
+              </p>
+            </div>
+          </div>
+          <div class="timeline">
+            <div class="ms">
+              <div class="mleft">
+                <span class="mtag">S1</span><span class="mev">Eve 1</span>
+              </div>
+              <div>
+                <div class="mname">Thin slice</div>
+                <div class="mdesc">
+                  One file. Claude turns the question into 3 sub-questions; for
+                  one, call Tavily, fetch the top page with httpx, write a cited
+                  paragraph. Force Claude to return a typed Pydantic object via
+                  tool-use (don't parse strings).
+                </div>
+                <span class="mpat"
+                  >done when: a real cited paragraph prints from a live
+                  source</span
+                >
+              </div>
+            </div>
+            <div class="ms">
+              <div class="mleft">
+                <span class="mtag">S2</span><span class="mev">Eve 2–3</span>
+              </div>
+              <div>
+                <div class="mname">Fan-out + resilience</div>
+                <div class="mdesc">
+                  Run all workers concurrently with <code>asyncio.gather</code>.
+                  Add retries-with-backoff, a per-run token budget, and record
+                  each call as a span to <code>trace.json</code>.
+                </div>
+                <span class="mpat"
+                  >done when: 4 workers run in parallel · one can fail without
+                  killing the run · you get trace.json</span
+                >
+              </div>
+            </div>
+            <div class="ms">
+              <div class="mleft">
+                <span class="mtag">S3 ★</span><span class="mev">Eve 4–5</span>
+              </div>
+              <div>
+                <div class="mname">The thesis — verifier + generations</div>
+                <div class="mdesc">
+                  Verifier: re-pass each claim's <i>actual source text</i> to
+                  Claude → keep/flag/drop, drop the unsupported. Generations:
+                  synthesize → score faithfulness (% kept) → research more →
+                  repeat up to N.
+                </div>
+                <span class="mpat"
+                  >done when: a fabricated claim gets dropped · the score rises
+                  across generations</span
+                >
+              </div>
+            </div>
+            <div class="ms">
+              <div class="mleft">
+                <span class="mtag">S4</span><span class="mev">Eve 6–7</span>
+              </div>
+              <div>
+                <div class="mname">Eval harness + ablation</div>
+                <div class="mdesc">
+                  Make B0/B1/A1/A2 <b>feature flags on one engine</b>. Loop your
+                  eval set through all four; print the unsupported-claim rate
+                  each. Validate the verifier against your 30-row gold set.
+                </div>
+                <span class="mpat"
+                  >done when: you have the 4-row scorecard showing B1 → A2
+                  improvement</span
+                >
+              </div>
+            </div>
+            <div class="ms">
+              <div class="mleft">
+                <span class="mtag">S5</span><span class="mev">Eve 8</span>
+              </div>
+              <div>
+                <div class="mname">The shareable demo</div>
+                <div class="mdesc">
+                  The engine already emits a run-dict;
+                  <code>report.py</code> turns it into an auto-playing
+                  <code>run.html</code>. Run once with real keys → it
+                  regenerates the hosted /demo from a genuine run.
+                </div>
+                <span class="mpat">done when: /demo plays your real run</span>
+              </div>
+            </div>
+            <div class="ms shipgate">
+              <div class="mleft">
+                <span class="mtag">S6</span><span class="mev">ship</span>
+              </div>
+              <div>
+                <div class="mname">Record &amp; ship</div>
+                <div class="mdesc">
+                  Screen-record /demo autoplaying → GIF for README/LinkedIn.
+                  Push; Pages redeploys. README leads with the live demo + the
+                  ablation numbers.
+                </div>
+                <span class="mpill"
+                  >QuickTime to record · or `brew install vhs` for scripted
+                  terminal GIFs</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="asym" style="margin-top: 24px">
+            <b>The one-line mental model —</b> sign up for
+            <span class="accent">two APIs (Claude + Tavily)</span>, write an
+            async loop that plans → searches → verifies → iterates, and measure
+            it with an ablation. No GPUs, no model hosting, no Modal.
+          </div>
+        </section>
+      </div>
+    </div>
+    <!-- /view-guide -->
+
     <footer>
       <div class="wrap">
         <div class="big">
@@ -3453,13 +3845,23 @@ state = init(goal)
           diff: 1,
           tools: "Gmail API (you already have a Gmail MCP) · Pydantic",
           build: [
-            "<b>Get data first.</b> Export your last ~50 emails to a folder of <code>.txt</code> files — that's your seed set.",
-            "Define a typed <code>Triage</code> schema and force the model to return exactly that (no free text).",
-            "For each thread, classify once → a <code>Triage</code> object; route FYI → label, reply-needed → draft, urgent → notify.",
+            "<b>Get data first</b> (see the data box below).",
+            "Define a typed <code>Triage</code> schema; force the model to return exactly that.",
+            "Classify each thread once → route FYI → label, reply-needed → draft, urgent → notify.",
             "Wrap the draft step in the evaluator + generations loop below.",
-            "Append every decision to <code>trace.jsonl</code> so the run is auditable.",
+            "Log every decision to <code>trace.jsonl</code>.",
           ],
-          data: "<b>Seed:</b> your last 50 emails (free, already yours). <b>Eval set:</b> hand-label 30 of them — category + a yes/no 'would I send this draft?'. ~20 min of work. That's plenty to see a real accuracy number.",
+          data: {
+            source:
+              "Your own inbox — export ~50 emails via Google Takeout, or pull unread with the Gmail API you already have connected.",
+            evalset:
+              "Hand-label 30 of them: category + a yes/no 'would I send this draft?'. ~20 min.",
+            metric:
+              "Classification accuracy (target > 90%) + draft-acceptance rate.",
+            example:
+              '{"subject":"Re: overdue invoice","label":"reply_needed","send_draft":true}',
+            pub: "Enron Email Dataset — pre-categorized emails if you don't want to use your own.",
+          },
           evaluator: {
             desc: "A judge agent scores each drafted reply against the original thread — does it address the ask, match tone, and invent zero facts?",
             code: [
@@ -3487,11 +3889,11 @@ state = init(goal)
             "0:00 — show a messy inbox: 10 unread, varied.",
             "0:20 — run `python triage.py`; console streams '✓ 10 classified · 3 drafts · 1 urgent'.",
             "0:50 — cut to Gmail: labels applied, 3 reply drafts waiting.",
-            "1:30 — open `trace.jsonl` (every decision + the gen-loop score climbing), end on the confusion matrix.",
+            "1:30 — open `trace.jsonl` + the gen-loop score climbing; end on the confusion matrix.",
           ],
           evalMetric: "Classification accuracy + draft-acceptance rate",
           evalHow:
-            "Run against your 30 labeled emails; accuracy vs your labels (target > 90%) + a confusion matrix, plus how many drafts you'd send unedited.",
+            "Run against your 30 labeled emails; accuracy vs your labels + a confusion matrix, plus how many drafts you'd send unedited.",
         },
         {
           star: false,
@@ -3503,13 +3905,23 @@ state = init(goal)
           diff: 1,
           tools: "ripgrep · file read",
           build: [
-            "<b>Get data first.</b> Pick any repo; write 20 questions whose answer is a specific file, mined from its README/issues. Add 5 unanswerable ones.",
+            "<b>Get data first</b> (see the data box below).",
             "Give the agent two tools: <code>grep(pattern)</code> and <code>read(path, lines)</code>.",
-            "Loop: model picks a tool, you run it, append the observation, repeat until it's ready (cap at N calls).",
-            "Force the final answer to carry a <code>file:line</code> citation; run it through the evaluator below.",
-            "If the citation can't be verified, kick it back into another generation or refuse.",
+            "Loop: model picks a tool, you run it, append the observation, repeat (cap at N).",
+            "Force a <code>file:line</code> citation; run it through the evaluator below.",
+            "If the citation can't be verified, regenerate or refuse.",
           ],
-          data: "<b>Seed:</b> any repo (free). <b>Eval set:</b> 20 question→answer-file pairs + 5 unanswerable. You can mine the answers straight from the repo's own docs in ~30 min.",
+          data: {
+            source:
+              "One real repo you clone — e.g. psf/requests or pallets/flask. Free, self-labeling by reality.",
+            evalset:
+              "20 {question → answer_file} pairs you write by reading the repo + 5 unanswerable ones.",
+            metric:
+              "Citation precision (cited file is correct) + correct-refusal rate.",
+            example:
+              '{"q":"where is the retry logic?","answer_file":"urllib3/util/retry.py"}',
+            pub: "SWE-bench-lite — real repos + issues with the known fix file as ground truth.",
+          },
           evaluator: {
             desc: "A deterministic check — re-grep the cited file for the answer's key terms. The citation either checks out or it doesn't.",
             code: [
@@ -3550,13 +3962,23 @@ state = init(goal)
           diff: 1,
           tools: "Google Calendar API (you have a Calendar MCP)",
           build: [
-            "<b>Get data first.</b> Generate 15 synthetic calendars in code (random busy blocks) + a constraint set each. Free, instant, and you know the right answer.",
+            "<b>Get data first</b> (see the data box below).",
             "Tools: <code>free_busy(person, range)</code> and <code>create_event(...)</code>.",
             "Parse the goal into constraints: duration, window, attendees.",
             "Compute candidate slots from the free/busy intersection — in code, not the model.",
-            "Let the model rank candidates; the evaluator + loop below guarantees it never books an invalid slot.",
+            "The evaluator + loop below guarantee it never books an invalid slot.",
           ],
-          data: "<b>Seed + eval set are the same here:</b> ~15 synthetic calendars you generate programmatically, each tagged with its known-valid windows. No labeling needed — the constraints ARE the ground truth.",
+          data: {
+            source:
+              "Synthetic — generate 15 calendars in code (random busy blocks). No download, instant.",
+            evalset:
+              "Each row is {busy_blocks, constraints, valid_windows} — the constraints ARE the labels.",
+            metric:
+              "Constraint-satisfaction rate (zero conflicts AND inside the window) — hard pass/fail.",
+            example:
+              '{"duration":30,"window":"Mon-Fri 13-17h","busy":[["Thu 14","Thu 15"]],"valid":["Thu 15:30"]}',
+            pub: "None needed — fully synthetic, and you know every right answer.",
+          },
           evaluator: {
             desc: "A pure-code checker (no LLM) — asserts the chosen slot has zero conflicts and sits inside the requested window.",
             code: [
@@ -3595,15 +4017,25 @@ state = init(goal)
           diff: 1,
           tools: "any text in · Pydantic · Anki/CSV out",
           build: [
-            "<b>Get data first.</b> Grab 5 articles you actually want to learn — that's your seed AND source-of-truth for grading.",
+            "<b>Get data first</b> (see the data box below).",
             "Define a <code>Card(front, back, tag)</code> schema; extract a typed list per chunk.",
-            "Run the validation gate: drop empty fields, enforce one idea per card, dedupe.",
+            "Validation gate: drop empty fields, enforce one idea per card, dedupe.",
             "Score each card with the evaluator; regenerate the failures (loop below).",
             "Export the survivors to Anki / CSV.",
           ],
-          data: "<b>Seed:</b> 5 articles. <b>Eval set:</b> grade 30 output cards on a 3-point rubric. Use an LLM-judge, but hand-grade 10 yourself to confirm the judge agrees — that 10-item gold check is the whole trick to trusting an automated eval.",
+          data: {
+            source:
+              "5 articles you actually want to learn — specific Wikipedia pages or arXiv abstracts. The article is also your source-of-truth for grading.",
+            evalset:
+              "Grade 30 generated cards on a 3-point rubric; hand-grade 10 as a gold check on the judge.",
+            metric:
+              "Card-quality pass rate (atomic + answerable-from-front + correct).",
+            example:
+              '{"front":"What is the spacing effect?","atomic":true,"answerable":true,"correct":true}',
+            pub: "Any Wikipedia article or arXiv paper — no dataset to download.",
+          },
           evaluator: {
-            desc: "A rubric judge scores each card against the source: is it atomic, answerable from the front alone, and factually correct?",
+            desc: "A rubric judge scores each card against the source: atomic, answerable from the front alone, factually correct?",
             code: [
               "class CardScore(BaseModel):",
               "    atomic: bool",
@@ -3624,9 +4056,9 @@ state = init(goal)
           },
           demo: [
             "0:00 — drop in a Wikipedia article.",
-            "0:20 — run; console: 'extracted 24 · dropped 3 empty · 2 dupes · regenerated 4 weak'.",
+            "0:20 — run; console: 'extracted 24 · dropped 3 empty · regenerated 4 weak'.",
             "0:50 — open the deck in Anki: clean, atomic, one idea each.",
-            "1:30 — show a rejected card + the % that pass the rubric before vs after the loop.",
+            "1:30 — show a rejected card + the % that pass before vs after the loop.",
           ],
           evalMetric: "Card-quality pass rate (rubric)",
           evalHow:
@@ -3636,19 +4068,29 @@ state = init(goal)
           star: false,
           title: "Self-correcting SQL",
           blurb:
-            "Plain-English question → SQL → runs it → reads its own error → fixes itself. A pocket-sized version of the whole project's thesis.",
+            "Plain-English question → SQL → runs it → reads its own error → fixes itself. A pocket-sized version of the project's thesis.",
           pat: "Evaluator-optimizer ★",
           time: "1–2 evenings",
           diff: 2,
-          tools: "any SQL database (SQLite + the public Chinook DB)",
+          tools: "SQLite + the public Chinook DB",
           build: [
-            "<b>Get data first.</b> Download the public <code>Chinook</code> SQLite DB. Write 20–25 NL questions; run each correct SQL once to capture the gold result set. (I've started this set for you — see <code>evals/</code>.)",
+            "<b>Get data first</b> (see the data box below).",
             "Translate the question to SQL (structured output).",
-            "Execute against the DB — the database itself is half the evaluator.",
-            "Compare rows to the gold set for the other half; on any failure, run the generations loop below.",
-            "Log every attempt to the trace; report accuracy with the loop ON vs OFF.",
+            "Execute against the DB — half the evaluator is just 'did it run?'.",
+            "Compare rows to the gold set for the other half; on failure, run the loop below.",
+            "Report accuracy with the loop ON vs OFF.",
           ],
-          data: "<b>Seed:</b> Chinook DB (free, well-known schema). <b>Eval set:</b> 25 NL→SQL pairs with gold result sets — generate the gold once by running the reference SQL. <b>I've seeded <code>evals/sql_eval.jsonl</code> with starter questions + reference SQL.</b>",
+          data: {
+            source:
+              "The public Chinook SQLite DB — one-file download, well-known schema (artists, albums, tracks, invoices, customers).",
+            evalset:
+              "25 {question, reference_sql, gold_rows} — run the ref SQL once to capture gold. Your sql_eval.jsonl ships 10 to start.",
+            metric:
+              "Execution accuracy (returned rows == gold), measured with retry ON vs OFF.",
+            example:
+              '{"q":"top 5 customers by spend","sql":"SELECT ... LIMIT 5","gold_rows":[["Helena",49.62]]}',
+            pub: "Spider or WikiSQL — large text-to-SQL benchmarks if you want scale.",
+          },
           evaluator: {
             desc: "Two-stage: the DB executes the SQL (syntactic truth), then the rows are compared to the gold set (semantic truth).",
             code: [
@@ -3675,11 +4117,11 @@ state = init(goal)
             "0:00 — ask 'top 5 customers by revenue last quarter'.",
             "0:25 — first SQL errors (wrong column); console shows it reading the traceback.",
             "0:55 — attempt 2 runs clean → correct rows.",
-            "1:25 — flash the ablation: execution accuracy with self-correction ON vs OFF. Same shape as the flagship.",
+            "1:25 — flash the ablation: execution accuracy with self-correction ON vs OFF.",
           ],
           evalMetric: "Execution accuracy, loop ON vs OFF (mini-ablation)",
           evalHow:
-            "% of 25 questions where returned rows match gold, self-correction enabled vs disabled — a small ablation that echoes the main project.",
+            "% of 25 questions where returned rows match gold, self-correction enabled vs disabled.",
         },
         {
           star: false,
@@ -3691,13 +4133,22 @@ state = init(goal)
           diff: 2,
           tools: "sandboxed Python exec (timeout, no network)",
           build: [
-            "<b>Get data first.</b> Take one real CSV; write 20 questions and compute each answer once by hand — those answers are your gold.",
-            "Expose one tool: <code>run_python(code)</code> in a locked-down sandbox (timeout, no net).",
-            "Loop: model writes code → execute → return stdout/stderr → it observes and iterates.",
-            "Use the evaluator below to check the final number vs gold; iterate on failure.",
+            "<b>Get data first</b> (see the data box below).",
+            "Expose one tool: <code>run_python(code)</code> in a locked-down sandbox.",
+            "Loop: model writes code → execute → return stdout/stderr → it iterates.",
+            "Use the evaluator below to check the final number vs gold.",
             "Return the answer plus the exact code for auditability.",
           ],
-          data: "<b>Seed:</b> one CSV you care about. <b>Eval set:</b> 20 questions with known numeric answers — you compute the gold once, then it grades every future run automatically.",
+          data: {
+            source:
+              "One real CSV — e.g. Kaggle 'Superstore Sales' or any sales export you have.",
+            evalset:
+              "20 {question, gold_answer} — you compute each answer once by hand; it grades every future run.",
+            metric: "Numeric accuracy within tolerance + sandbox-safety rate.",
+            example:
+              '{"q":"month-over-month growth in March (%)","gold_answer":12.4,"tol":0.1}',
+            pub: "Any Kaggle tabular dataset (Titanic, Superstore, NYC Taxi).",
+          },
           evaluator: {
             desc: "Checks the final numeric answer against gold within a tolerance, and flags any run that errored or hit the sandbox limits.",
             code: [
@@ -3719,7 +4170,7 @@ state = init(goal)
             "0:00 — drop a sales.csv.",
             "0:20 — ask 'what's the month-over-month growth trend?'.",
             "0:45 — watch it write pandas, hit a dtype error, fix it, render a chart.",
-            "1:25 — show the chart + exact code, and the sandbox killing a deliberate infinite loop.",
+            "1:25 — show the chart + exact code, and the sandbox killing an infinite loop.",
           ],
           evalMetric: "Answer accuracy (±tol) + sandbox-safety rate",
           evalHow:
@@ -3735,15 +4186,24 @@ state = init(goal)
           diff: 2,
           tools: "git · gh CLI",
           build: [
-            "<b>Get data first.</b> Take clean files and <i>inject</i> known bugs to make 15 test PRs — now you know exactly what 'correct' is.",
+            "<b>Get data first</b> (see the data box below).",
             "Pull the diff with <code>gh pr diff</code> and split into hunks.",
             "Score each hunk against a rubric → a typed list of findings with confidence.",
-            "Run every finding through the adversarial evaluator below; keep only survivors.",
-            "Post survivors above a confidence threshold — the noise gate is the whole trick.",
+            "Run every finding through the adversarial evaluator below; keep survivors.",
+            "Post survivors above a confidence threshold — the noise gate is the trick.",
           ],
-          data: "<b>Seed:</b> any clean code. <b>Eval set:</b> 15 PRs where YOU injected the bugs — synthetic ground truth means perfect labels for free. Measure recall (bugs caught) + precision (real comments).",
+          data: {
+            source:
+              "Clean code you own — then INJECT 15 known bugs to make synthetic PRs. Synthetic = perfect labels for free.",
+            evalset: "Each row: {diff, planted_bug: file + line + type}.",
+            metric:
+              "Recall (bugs caught) + precision (real comments), vs a single-shot baseline.",
+            example:
+              '{"file":"auth.py","line":42,"bug":"off-by-one in token TTL"}',
+            pub: "A slice of SWE-bench — real bug-fix PRs, with the fix commit as ground truth.",
+          },
           evaluator: {
-            desc: "A separate skeptic agent tries to REFUTE each finding — 'is this actually a bug, or did the reviewer imagine it?' Adversarial verification kills false positives.",
+            desc: "A separate skeptic agent tries to REFUTE each finding — 'is this actually a bug?' Adversarial verification kills false positives.",
             code: [
               "class Refute(BaseModel):",
               "    is_real: bool",
@@ -3784,13 +4244,23 @@ state = init(goal)
           diff: 2,
           tools: "embeddings + a vector store (Chroma)",
           build: [
-            "<b>Get data first.</b> Point at any docs site. Write 25 questions — 15 answerable from the docs, 10 deliberately not.",
+            "<b>Get data first</b> (see the data box below).",
             "Chunk + embed the docs once into Chroma; retrieve top-k per question.",
             "Answer only from retrieved chunks, every claim linked to its source.",
-            "Run the faithfulness evaluator; if any sentence is unsupported, tighten and regenerate (loop below).",
+            "Run the faithfulness evaluator; unsupported sentence → tighten + regenerate (loop below).",
             "If retrieval is weak, refuse rather than improvise.",
           ],
-          data: "<b>Seed:</b> your docs (free). <b>Eval set:</b> 25 questions, 15 answerable + 10 not. The 10 'not' questions are what catch a bluffing bot — most people forget them.",
+          data: {
+            source:
+              "One docs site — e.g. the FastAPI docs, the Stripe docs, or your own product docs.",
+            evalset:
+              "25 questions: 15 answerable from the docs + 10 deliberately NOT (the ones that catch a bluffing bot).",
+            metric:
+              "Answer-faithfulness (sentence backed by a chunk) + correct-refusal rate.",
+            example:
+              '{"q":"how do I set a cookie?","answerable":true} · {"q":"what is the pricing?","answerable":false}',
+            pub: "RAGTruth — a hallucination/faithfulness benchmark for RAG.",
+          },
           evaluator: {
             desc: "A faithfulness judge: is every sentence in the answer actually supported by one of the retrieved chunks?",
             code: [
@@ -3814,7 +4284,7 @@ state = init(goal)
             "0:00 — ask a real product question → grounded answer with a doc link.",
             "0:35 — open the retrieved chunks behind it: the answer maps to real text.",
             "1:05 — ask something the docs don't cover → it refuses cleanly.",
-            "1:30 — contrast: raw Claude confidently makes up an answer to the same question.",
+            "1:30 — contrast: raw Claude confidently makes up an answer.",
           ],
           evalMetric: "Answer-faithfulness + correct-refusal rate",
           evalHow:
@@ -3830,13 +4300,23 @@ state = init(goal)
           diff: 1,
           tools: "Tavily/Exa search · httpx fetch",
           build: [
-            "<b>Get data first.</b> Write 10 research questions with checkable claims. (I've seeded <code>evals/research_eval.jsonl</code> + a verifier gold set for you.)",
-            "Tools: <code>search(q)</code> and <code>fetch(url)</code>; extract findings, each tied to its source URL.",
+            "<b>Get data first</b> (see the data box below).",
+            "Tools: <code>search(q)</code> and <code>fetch(url)</code>; extract findings tied to a source URL.",
             "Loop search→fetch→extract until coverage is enough; synthesize with citations.",
-            "Add the verifier evaluator below — now unsupported claims get dropped.",
-            "Add the generations loop → faithfulness climbs → split into planner + workers + verifier and you have the flagship.",
+            "Add the verifier evaluator below — unsupported claims get dropped.",
+            "Add the generations loop → split into planner + workers + verifier = the flagship.",
           ],
-          data: "<b>Seed:</b> 10 research questions. <b>Eval set:</b> the flagship's faithfulness metric, plus a ~30-row verifier gold set (claim · source · supported?) to prove the verifier agrees with humans. <b>I've generated <code>evals/research_eval.jsonl</code> and <code>evals/research_gold.jsonl</code>.</b>",
+          data: {
+            source:
+              "10 research questions with checkable claims — e.g. 'main causes of the 2023 SVB collapse', whose answer should cite the FDIC release + the Fed's Barr review with claims like '~$15B held-to-maturity losses'.",
+            evalset:
+              "Unsupported-claim rate, baseline vs +verifier. PLUS a 30-row verifier gold set: claim · source · keep/flag/drop — e.g. the claim 'no CRO for 8 months' is labeled DROP because no source supports it.",
+            metric:
+              "Unsupported-claim rate (% of cited claims the source doesn't actually support).",
+            example:
+              '{"question":"causes of SVB collapse","expected_claims":["~$15B HTM losses"],"sources":["FDIC","Fed Barr review"]}',
+            pub: "HotpotQA or SimpleQA — multi-hop / factual QA benchmarks.",
+          },
           evaluator: {
             desc: "The verifier agent — re-fetch each claim's cited source and check the text actually entails it. keep / flag / drop. This IS the flagship's evaluator.",
             code: [
@@ -3861,11 +4341,11 @@ state = init(goal)
             "0:00 — ask a research question; watch search → fetch → extract stream.",
             "0:40 — get a short, cited summary.",
             "1:05 — switch to the other tab: 'here's what adding a planner + verifier makes this.'",
-            "1:30 — show the faithfulness number jump once the verifier is bolted on. The bridge to the whole project.",
+            "1:30 — show the faithfulness number jump once the verifier is bolted on.",
           ],
           evalMetric: "Unsupported-claim rate (baseline vs +verifier)",
           evalHow:
-            "% of claims the cited source doesn't support, before and after the verifier — on the 10 seeded questions. This eval literally graduates into the flagship.",
+            "% of claims the cited source doesn't support, before and after the verifier — on the 10 seeded questions.",
         },
       ];
 
@@ -3887,6 +4367,7 @@ state = init(goal)
           const demo = a.demo.map((s) => `<li>${s}</li>`).join("");
           const evalCode = hl(a.evaluator.code.join("\n"));
           const genCode = hl(a.genloop.code.join("\n"));
+          const d = a.data;
           return `<div class="acard" data-ac="${i}">
             <div class="ah"><span class="anum">${String(i + 1).padStart(2, "0")}</span>${a.star ? '<span class="star">★ seed</span>' : ""}</div>
             <h4>${a.title}</h4>
@@ -3898,7 +4379,15 @@ state = init(goal)
             </div>
             <div class="recipe">
               <div class="rsec"><div class="rt">🔨 Build it — step by step</div><ol>${build}</ol></div>
-              <div class="rsec datasec"><div class="rt">📦 Seed &amp; eval data — how much?</div><p>${a.data}</p></div>
+              <div class="rsec datasec"><div class="rt">📦 Seed &amp; eval data — specifics</div>
+                <table class="dataspec">
+                  <tr><td>Source</td><td>${d.source}</td></tr>
+                  <tr><td>Eval set</td><td>${d.evalset}</td></tr>
+                  <tr><td>Metric</td><td>${d.metric}</td></tr>
+                  <tr><td>Example row</td><td><code>${esc(d.example)}</code></td></tr>
+                  <tr><td>Public option</td><td>${d.pub}</td></tr>
+                </table>
+              </div>
               <div class="rsec"><div class="rt">◆ The evaluator agent</div><p class="sdesc">${a.evaluator.desc}</p><pre class="code mini">${evalCode}</pre></div>
               <div class="rsec"><div class="rt">↻ The generations loop</div><p class="sdesc">${a.genloop.desc}</p><pre class="code mini">${genCode}</pre></div>
               <div class="rsec"><div class="rt">🎬 The 2-min demo</div><ol class="demoreel">${demo}</ol></div>
@@ -3909,7 +4398,7 @@ state = init(goal)
         }).join("");
         $$(".acard").forEach((c) =>
           c.addEventListener("click", (e) => {
-            if (e.target.closest(".recipe")) return; // allow text selection inside
+            if (e.target.closest(".recipe")) return;
             c.classList.toggle("open");
           }),
         );
@@ -3917,9 +4406,11 @@ state = init(goal)
 
       /* ---- tab switching ---- */
       function setView(v) {
-        $("#view-project").hidden = v !== "project";
-        $("#view-agents").hidden = v !== "agents";
-        document.body.classList.toggle("agents-view", v === "agents");
+        ["project", "agents", "guide"].forEach((name) => {
+          $("#view-" + name).hidden = v !== name;
+        });
+        // the domain toggle only applies to the project view
+        document.body.classList.toggle("agents-view", v !== "project");
         $$(".tabbtn").forEach((b) =>
           b.classList.toggle("active", b.dataset.view === v),
         );
